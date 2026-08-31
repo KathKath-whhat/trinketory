@@ -1,0 +1,123 @@
+@import "tailwindcss";
+
+/*
+  Trinketory design tokens.
+
+  The palette is deliberately warm and low-contrast: nothing on this site is
+  pure white or pure black. That single restraint is what separates a calm
+  catalogue from a default storefront.
+*/
+@theme {
+  /* Canvas — warm off-white, never #fff */
+  --color-canvas: #faf9f7;
+  --color-surface: #f3f1ed;
+  --color-surface-deep: #ebe7e0;
+
+  /* Ink — soft charcoal, never #000 */
+  --color-ink: #3d3b39;
+  --color-ink-muted: #8a8580;
+  --color-ink-faint: #b8b2ab;
+
+  /* Hairlines, not boxes */
+  --color-line: #e7e3dd;
+  --color-line-strong: #d6d0c7;
+
+  /* One accent. Used on badges and hover only. */
+  --color-accent: #d64b3c;
+  --color-accent-soft: #f7e2de;
+
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+
+  /* Quiet type scale */
+  --text-micro: 0.6875rem;
+  --text-micro--line-height: 1.4;
+  --text-micro--letter-spacing: 0.12em;
+
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.5;
+
+  --tracking-label: 0.1em;
+
+  /* Masonry gutter — wide enough that whitespace does the separating */
+  --spacing-gutter: 1.5rem;
+  --spacing-gutter-lg: 2rem;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+
+  ::selection {
+    background-color: var(--color-accent-soft);
+    color: var(--color-ink);
+  }
+
+  /* Focus rings stay visible but match the palette */
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  /*
+    Small-caps label used for prices, categories, and nav.
+    Borrowed from Emi Jay: quiet, spaced, never shouty.
+  */
+  .label {
+    font-size: var(--text-micro);
+    line-height: 1.4;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  /*
+    Pinterest-style masonry. CSS columns rather than a JS layout engine:
+    it degrades gracefully, needs no measurement pass, and the vertical
+    reading order is what people expect from this kind of grid anyway.
+  */
+  .masonry {
+    columns: 2;
+    column-gap: var(--spacing-gutter);
+  }
+
+  .masonry > * {
+    break-inside: avoid;
+    margin-bottom: var(--spacing-gutter);
+  }
+
+  @media (min-width: 768px) {
+    .masonry {
+      columns: 3;
+      column-gap: var(--spacing-gutter-lg);
+    }
+
+    .masonry > * {
+      margin-bottom: var(--spacing-gutter-lg);
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .masonry {
+      columns: 4;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
