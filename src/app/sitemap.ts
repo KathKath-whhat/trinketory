@@ -1,9 +1,8 @@
 import type { MetadataRoute } from "next";
+import { SITE_URL } from "@/lib/site";
 import { getCategories, getProducts } from "@/lib/catalog";
 
-const BASE = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.trinketory.com"
-).replace(/\/$/, "");
+const BASE = SITE_URL;
 
 /* Rebuilt hourly; the catalogue itself revalidates every five minutes. */
 export const revalidate = 3600;

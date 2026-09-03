@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, Fraunces } from "next/font/google";
 import "./globals.css";
+import { SITE_URL } from "@/lib/site";
 
 /*
   Root layout carries the fonts and the document shell only.
@@ -23,9 +24,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.trinketory.com",
-  ),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Trinketory — small things, taken seriously",
     template: "%s · Trinketory",

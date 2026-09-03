@@ -1,5 +1,7 @@
 import Stripe from "stripe";
 
+import { SITE_URL } from "@/lib/site";
+
 /*
   Server-only Stripe client.
 
@@ -30,8 +32,5 @@ export function getStripe(): Stripe {
 
 /* Where Stripe sends people back to. */
 export function siteUrl(): string {
-  return (
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
-    "http://localhost:3000"
-  );
+  return SITE_URL;
 }

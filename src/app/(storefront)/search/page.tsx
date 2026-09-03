@@ -24,6 +24,37 @@ function score(haystack: string, terms: string[]): boolean {
   return terms.every((term) => haystack.includes(term));
 }
 
+/*
+  Our colourways are named for the brand, not for the search box — nobody
+  types "sky" when they mean blue. Each colour carries the plain words a
+  shopper would actually use, so "blue claw" finds the sky Squiggle.
+*/
+const COLOUR_ALIASES: Record<string, string> = {
+  sky: "blue pale",
+  navy: "blue dark",
+  blush: "pink rose pale",
+  cherry: "red",
+  clay: "tan brown caramel",
+  tortoise: "brown amber tortoiseshell",
+  espresso: "brown chocolate dark",
+  sand: "beige tan neutral",
+  cream: "ivory white off-white neutral",
+  pearl: "white ivory",
+  butter: "yellow pale",
+  mustard: "yellow ochre",
+  olive: "green khaki",
+  sage: "green pale",
+  lime: "green",
+  lilac: "purple lavender",
+  mauve: "purple pink",
+  dove: "grey gray",
+  smoke: "grey gray",
+  steel: "silver grey gray metal",
+  gold: "gold brass metal",
+  black: "black",
+  assorted: "mixed multi set",
+};
+
 export default async function SearchPage({
   searchParams,
 }: {
@@ -49,7 +80,7 @@ export default async function SearchPage({
             p.details.join(" "),
             categoryName.get(p.categoryId) ?? p.categoryId,
             colours(p)
-              .map((c) => c.name)
+              .map((c) => `${c.name} ${COLOUR_ALIASES[c.id] ?? ""}`)
               .join(" "),
           ]
             .join(" ")
