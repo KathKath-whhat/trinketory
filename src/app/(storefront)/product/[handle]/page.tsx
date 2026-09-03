@@ -139,8 +139,14 @@ export default async function ProductPage({ params }: { params: Params }) {
           </dl>
 
           <p className="mt-8 text-caption text-ink-faint">
-            Free shipping over $80 · 30-day returns on everything except
-            one-of-ones.
+            <Link href="/shipping" className="hover:text-ink">
+              Free shipping over $80
+            </Link>{" "}
+            ·{" "}
+            <Link href="/returns" className="hover:text-ink">
+              30-day returns
+            </Link>{" "}
+            · Packed by hand in Sydney
           </p>
         </div>
       </div>

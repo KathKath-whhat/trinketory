@@ -237,9 +237,9 @@ export default function AdminOverview() {
       </Section>
 
       {/*
-        Sales and finance read from the orders table. It exists and is
-        queried here for real — there is simply nothing in it until Stripe
-        is wired, so this reports zero rather than inventing a number.
+        Sales and finance read from the orders table. Stripe is connected and
+        the webhook writes here on payment, so a zero on this page means zero
+        sales — never a missing integration.
       */}
       <Section title="Sales">
         <div className="grid gap-8 sm:grid-cols-2">
@@ -256,9 +256,9 @@ export default function AdminOverview() {
         </div>
         {data.orders === 0 && (
           <p className="mt-6 border-l-2 border-line pl-4 text-caption text-ink-muted">
-            No orders yet — checkout is not connected. These figures are read
-            live from the orders table and will fill in on their own once
-            Stripe is wired up. Nothing here is sample data.
+            No orders yet. Checkout is live on Stripe, so these figures are read
+            straight from the orders table and will fill in on their own with
+            the first sale. Nothing here is sample data.
           </p>
         )}
       </Section>

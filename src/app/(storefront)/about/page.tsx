@@ -19,15 +19,15 @@ export default function AboutPage() {
           </p>
           <p>
             So everything here does one job properly. Clips that actually hold.
-            Bows with hidden hardware. Charms heavy enough to feel like an
-            object rather than a giveaway. Short runs, because we would rather
-            make four hundred good ones than forty thousand acceptable ones.
+            Bows with hidden hardware. Scrunchies wide enough not to leave a
+            crease. Short runs, because we would rather make four hundred good
+            ones than forty thousand acceptable ones.
           </p>
           <p>
-            Once in a while a material turns up that only exists once — a metre
-            of deadstock ribbon, a single well-behaved pour of acetate. Those
-            become one-of-ones. They get a number, they go up, and then they
-            are somebody else&rsquo;s.
+            Everything is packed by hand in Sydney and shipped worldwide. If a
+            piece is not right, send it back within thirty days — we would
+            rather have it returned than have you keep something you do not
+            reach for.
           </p>
         </div>
       </div>

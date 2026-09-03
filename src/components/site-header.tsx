@@ -12,9 +12,14 @@ import {
   subscribe,
 } from "@/lib/bag-store";
 
+/*
+  One of One is deliberately absent: the page exists but has nothing in it
+  until a numbered piece is actually made, and an empty section in the primary
+  nav reads as a broken shop rather than a quiet one. Add it back here when
+  there is something to put on it.
+*/
 const PRIMARY = [
   { href: "/shop", label: "Shop" },
-  { href: "/drops", label: "One of One" },
   { href: "/about", label: "About" },
 ];
 

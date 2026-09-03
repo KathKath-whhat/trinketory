@@ -1,26 +1,37 @@
 import Link from "next/link";
 import ProductCard from "@/components/product-card";
-import ProductImage from "@/components/product-image";
-import {
-  colours,
-  getCategories,
-  getDrops,
-  getProducts,
-  priceRange,
-  productImage,
-} from "@/lib/catalog";
-import { formatPrice } from "@/lib/format";
+import { getCategories, getProducts } from "@/lib/catalog";
 
 export const revalidate = 300;
 
+/*
+  Three factual promises, each linking to the page that explains it. Not
+  marketing copy — the shipping threshold and the returns window here are the
+  same numbers the checkout and the returns policy use.
+*/
+const PROMISES = [
+  {
+    href: "/shipping",
+    heading: "Free over $80",
+    body: "Flat $9.50 otherwise, anywhere we ship. Packed by hand within two business days.",
+  },
+  {
+    href: "/returns",
+    heading: "30 days to change your mind",
+    body: "Unworn, no form, no reason required. Faulty pieces are on us both ways.",
+  },
+  {
+    href: "/care",
+    heading: "Made to be kept",
+    body: "Real acetate, mulberry silk, gold-plated brass. Here is how to look after it.",
+  },
+];
+
 export default async function HomePage() {
-  const [featured, drops, categories] = await Promise.all([
+  const [featured, categories] = await Promise.all([
     getProducts({ sort: "featured" }),
-    getDrops(),
     getCategories(),
   ]);
-
-  const latestDrop = drops[0];
 
   return (
     <div className="mx-auto max-w-[1600px] px-5 md:px-10">
@@ -40,8 +51,8 @@ export default async function HomePage() {
         </h1>
         <div className="max-w-sm md:pb-3">
           <p className="text-caption text-ink-muted">
-            Clips, bows, charms and other objects that do one small job
-            extremely well. Made in short runs — and occasionally, only once.
+            Clips, bows, scrunchies and other objects that do one small job
+            extremely well. Made in short runs and packed by hand in Sydney.
           </p>
           <div className="mt-6 flex gap-6">
             <Link
@@ -51,10 +62,10 @@ export default async function HomePage() {
               Shop everything
             </Link>
             <Link
-              href="/drops"
+              href="/about"
               className="label border-b border-transparent pb-1 text-ink-muted transition-colors hover:border-ink hover:text-ink"
             >
-              One of one
+              About us
             </Link>
           </div>
         </div>
@@ -75,51 +86,25 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {latestDrop && (
-        <section className="mt-24 border-t border-line pt-16">
-          <div className="grid gap-10 md:grid-cols-2 md:gap-16">
-            <Link href={`/product/${latestDrop.handle}`} className="group block">
-              <div className="overflow-hidden bg-surface">
-                <ProductImage
-                  category={latestDrop.categoryId}
-                  hex={colours(latestDrop)[0]?.hex ?? "#D6D0C7"}
-                  aspect={0.8}
-                  seed={latestDrop.id}
-                  src={productImage(latestDrop, 0)}
-                  alt={latestDrop.title}
-                  className="transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-                />
-              </div>
-            </Link>
-
-            <div className="flex flex-col justify-center">
-              <p className="label text-accent">
-                One of one · № {latestDrop.dropNumber}
-              </p>
-              <h2
-                className="mt-4 font-display text-3xl leading-tight text-ink md:text-4xl"
-                style={{ fontVariationSettings: '"SOFT" 40, "WONK" 1' }}
-              >
-                {latestDrop.title}
-              </h2>
-              <p className="mt-5 max-w-md text-caption leading-relaxed text-ink-muted">
-                {latestDrop.description}
-              </p>
-              <p className="label mt-6 text-ink">
-                {formatPrice(priceRange(latestDrop)[0])}
-              </p>
-              <div className="mt-8">
-                <Link
-                  href={`/product/${latestDrop.handle}`}
-                  className="label border-b border-ink pb-1 text-ink transition-colors hover:border-accent hover:text-accent"
+      <section className="mt-24 border-t border-line pt-16">
+        <ul className="grid gap-10 md:grid-cols-3 md:gap-16">
+          {PROMISES.map((promise) => (
+            <li key={promise.href}>
+              <Link href={promise.href} className="group block">
+                <h2
+                  className="font-display text-2xl text-ink transition-colors group-hover:text-accent"
+                  style={{ fontVariationSettings: '"SOFT" 40, "WONK" 1' }}
                 >
-                  See the piece
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
+                  {promise.heading}
+                </h2>
+                <p className="mt-2 max-w-xs text-caption leading-relaxed text-ink-muted">
+                  {promise.body}
+                </p>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <section className="mt-24 border-t border-line pt-16">
         <h2 className="label text-ink-faint">By kind</h2>

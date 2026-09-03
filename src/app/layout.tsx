@@ -23,12 +23,22 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.trinketory.com",
+  ),
   title: {
     default: "Trinketory — small things, taken seriously",
     template: "%s · Trinketory",
   },
   description:
-    "Hair clips, bows, charms and other small objects. Made in small runs, some of them only once.",
+    "Claw clips, bows, scrunchies, hair pins and combs. Made in short runs and packed by hand in Sydney.",
+  openGraph: {
+    type: "website",
+    siteName: "Trinketory",
+    title: "Trinketory — small things, taken seriously",
+    description:
+      "Claw clips, bows, scrunchies, hair pins and combs. Made in short runs and packed by hand in Sydney.",
+  },
 };
 
 export default function RootLayout({

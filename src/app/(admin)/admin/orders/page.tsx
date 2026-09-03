@@ -49,13 +49,13 @@ export default function AdminOrders() {
       {rows.length === 0 ? (
         <div className="mt-10 max-w-md border-l-2 border-line pl-5">
           <p className="text-caption leading-relaxed text-ink-muted">
-            No orders yet. This reads the real orders table — it is empty
-            because checkout is not connected to Stripe, so nothing has ever
-            been purchased.
+            No orders yet. This reads the real orders table, and nobody has
+            bought anything so far.
           </p>
           <p className="mt-4 text-caption leading-relaxed text-ink-faint">
-            Once Stripe is wired, paid orders arrive here automatically via
-            webhook. Nothing on this page is placeholder data.
+            Checkout is live on Stripe — paid orders land here automatically
+            via webhook, usually within a second or two of payment. Nothing on
+            this page is placeholder data.
           </p>
         </div>
       ) : (

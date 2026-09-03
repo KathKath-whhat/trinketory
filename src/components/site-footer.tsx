@@ -9,16 +9,10 @@ const INFO = [
 ];
 
 const SUPPORT = [
+  { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
-  { href: "/stockists", label: "Stockists" },
   { href: "/privacy", label: "Privacy" },
   { href: "/terms", label: "Terms" },
-];
-
-const SOCIAL = [
-  { href: "https://instagram.com", label: "Instagram" },
-  { href: "https://tiktok.com", label: "TikTok" },
-  { href: "https://pinterest.com", label: "Pinterest" },
 ];
 
 function Column({
@@ -64,9 +58,15 @@ export default function SiteFooter({
               Small things, taken seriously.
             </p>
             <p className="mt-4 text-caption text-ink-muted">
-              New pieces most Fridays. One-of-ones go up whenever they are
-              finished, which is rarely on a schedule.
+              New pieces most Fridays, in short runs. Packed by hand in Sydney,
+              shipped worldwide.
             </p>
+            <a
+              href="mailto:hello@trinketory.com"
+              className="label mt-5 inline-block border-b border-line pb-0.5 text-ink-muted transition-colors hover:border-ink hover:text-ink"
+            >
+              hello@trinketory.com
+            </a>
           </div>
 
           <Column
@@ -77,7 +77,7 @@ export default function SiteFooter({
             }))}
           />
           <Column heading="Info" links={INFO} />
-          <Column heading="Elsewhere" links={[...SUPPORT, ...SOCIAL]} />
+          <Column heading="Help" links={SUPPORT} />
         </div>
 
         <div className="mt-16 flex flex-col gap-3 border-t border-line pt-6 text-ink-faint md:flex-row md:items-center md:justify-between">
