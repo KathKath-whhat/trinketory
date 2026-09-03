@@ -21,6 +21,13 @@ export default function AdminLayout({
   const state = useAdmin();
   const pathname = usePathname();
 
+  /*
+    The password reset page has to render for someone who cannot sign in —
+    that is the entire point of it — so it sits outside the gate and outside
+    the admin chrome.
+  */
+  if (pathname === "/admin/reset") return <>{children}</>;
+
   if (state.status === "loading") {
     return (
       <div className="flex min-h-screen items-center justify-center">
