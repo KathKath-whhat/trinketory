@@ -50,7 +50,7 @@ export default function AdminOverview() {
         supabase
           .from("variants")
           .select(
-            "id, stock, price_cents, in_stock, products(title), colours(name)",
+            "id, stock, price_cents, in_stock, size, products(title), colours(name)",
           ),
         supabase.from("categories").select("id"),
         supabase.from("colours").select("id"),
@@ -78,6 +78,7 @@ export default function AdminOverview() {
         in_stock: boolean;
         products: { title: string } | null;
         colours: { name: string } | null;
+        size: string | null;
       };
 
       type PRow = {
@@ -119,7 +120,7 @@ export default function AdminOverview() {
             id: v.id,
             stock: v.stock,
             title: v.products?.title ?? v.id,
-            colour: v.colours?.name ?? "—",
+            colour: (v.colours?.name ?? "—") + (v.size ? ` / ${v.size}` : ""),
           }))
           .sort((a, b) => a.stock - b.stock),
         dropsMade: drops.length,

@@ -24,11 +24,13 @@ export type Category = {
   blurb: string;
 };
 
-export type Badge = "new" | "best-seller" | "last-one";
+export type Badge = "new" | "best-seller" | "last-one" | "coming-soon";
 
 export type Variant = {
   id: string;
   colour: Colour;
+  /* Optional second option, e.g. "Small". Empty string means no size. */
+  size: string;
   /* Minor units, so no float arithmetic ever touches money. */
   priceCents: number;
   inStock: boolean;
@@ -68,6 +70,7 @@ type VariantRow = {
   price_cents: number;
   in_stock: boolean;
   position: number;
+  size: string | null;
   colours: ColourRow | null;
 };
 
@@ -90,7 +93,7 @@ type ProductRow = {
 const PRODUCT_SELECT = `
   id, handle, title, category_id, badge, drop_number, description, details,
   aspect, featured, created_at, image_paths,
-  variants ( id, price_cents, in_stock, position, colours ( id, name, hex ) )
+  variants ( id, price_cents, in_stock, position, size, colours ( id, name, hex ) )
 ` as const;
 
 function toProduct(row: ProductRow): Product {
@@ -100,6 +103,7 @@ function toProduct(row: ProductRow): Product {
     .map((v) => ({
       id: v.id,
       colour: v.colours,
+      size: v.size ?? "",
       priceCents: v.price_cents,
       inStock: v.in_stock,
     }));
@@ -132,6 +136,16 @@ export function priceRange(product: Product): [number, number] {
 
 export function isSoldOut(product: Product): boolean {
   return product.variants.every((v) => !v.inStock);
+}
+
+/* True while a product is listed as a teaser and cannot be bought yet. */
+export function isComingSoon(product: Product): boolean {
+  return product.badge === "coming-soon";
+}
+
+/* Sizes offered across a product, in variant order. Empty when unsized. */
+export function sizes(product: Product): string[] {
+  return [...new Set(product.variants.map((v) => v.size).filter(Boolean))];
 }
 
 export function colours(product: Product): Colour[] {
@@ -269,6 +283,7 @@ export type CartLine = {
   categoryId: string;
   aspect: number;
   colour: Colour;
+  size: string;
   /* Authoritative price, read from Postgres at call time. */
   priceCents: number;
   lineTotalCents: number;
@@ -279,8 +294,10 @@ type CartVariantRow = {
   id: string;
   price_cents: number;
   in_stock: boolean;
+  size: string | null;
   colours: ColourRow | null;
   products: {
+    badge: string | null;
     handle: string;
     title: string;
     category_id: string;
@@ -304,7 +321,7 @@ export async function resolveCartLines(
   const { data, error } = await supabase
     .from("variants")
     .select(
-      "id, price_cents, in_stock, colours ( id, name, hex ), products ( handle, title, category_id, aspect )",
+      "id, price_cents, in_stock, size, colours ( id, name, hex ), products ( handle, title, category_id, aspect, badge )",
     )
     .in("id", ids)
     .returns<CartVariantRow[]>();
@@ -328,9 +345,11 @@ export async function resolveCartLines(
         categoryId: row.products.category_id,
         aspect: Number(row.products.aspect),
         colour: row.colours,
+        size: row.size ?? "",
         priceCents: row.price_cents,
         lineTotalCents: row.price_cents * quantity,
-        inStock: row.in_stock,
+        /* A coming-soon piece is never sellable, whatever its stock says. */
+        inStock: row.in_stock && row.products.badge !== "coming-soon",
       },
     ];
   });

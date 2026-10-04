@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import ProductImage from "@/components/product-image";
 import { getBagSummary, type BagSummary } from "@/app/actions/bag";
-import { formatPrice } from "@/lib/format";
+import { formatPrice, variantLabel } from "@/lib/format";
 import {
   FREE_SHIPPING_CENTS,
   MAX_PER_LINE,
@@ -223,7 +223,7 @@ export default function BagDrawer() {
                         </div>
 
                         <p className="label mt-1 text-ink-faint">
-                          {line.colour.name}
+                          {variantLabel(line.colour.name, line.size)}
                           {line.quantity > 1
                             ? ` · ${formatPrice(line.priceCents)} each`
                             : ""}

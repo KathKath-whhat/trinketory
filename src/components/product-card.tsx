@@ -2,6 +2,7 @@ import Link from "next/link";
 import ProductImage from "@/components/product-image";
 import {
   colours,
+  isComingSoon,
   isSoldOut,
   priceRange,
   productImage,
@@ -14,6 +15,7 @@ const BADGE_LABEL: Record<Badge, string> = {
   new: "New",
   "best-seller": "Best seller",
   "last-one": "Last one",
+  "coming-soon": "Coming soon",
 };
 
 /*
@@ -27,7 +29,9 @@ export default function ProductCard({ product }: { product: Product }) {
   const palette = colours(product);
   const lead = palette[0];
   const hover = palette[1] ?? lead;
-  const badge = soldOut
+  const badge = isComingSoon(product)
+    ? "Coming soon"
+    : soldOut
     ? "Sold out"
     : product.badge
       ? BADGE_LABEL[product.badge]
@@ -67,7 +71,7 @@ export default function ProductCard({ product }: { product: Product }) {
           {badge && (
             <span
               className={`label absolute left-3 top-3 px-2 py-1 ${
-                soldOut
+                soldOut && !isComingSoon(product)
                   ? "bg-canvas/85 text-ink-muted"
                   : "bg-accent-soft text-accent"
               }`}

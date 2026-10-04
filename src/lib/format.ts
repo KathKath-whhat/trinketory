@@ -41,3 +41,8 @@ export function slugify(input: string): string {
     .replace(/^-+|-+$/g, "")
     .slice(0, 60);
 }
+
+/* "Cherry" or "Cherry / Small" — how a variant is named in the bag and at checkout. */
+export function variantLabel(colourName: string, size: string): string {
+  return size ? `${colourName} / ${size}` : colourName;
+}

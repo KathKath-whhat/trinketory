@@ -149,6 +149,46 @@ function Silhouette({
           />
         </g>
       );
+    case "crochet":
+      /* Five round petals around a stitched centre. */
+      return (
+        <g>
+          {[0, 72, 144, 216, 288].map((deg) => (
+            <ellipse
+              key={deg}
+              cx="50"
+              cy="30"
+              rx="13"
+              ry="17"
+              transform={`rotate(${deg} 50 50)`}
+              fill={fill}
+              stroke={stroke}
+              strokeWidth="1.5"
+            />
+          ))}
+          {[0, 72, 144, 216, 288].map((deg) => (
+            <path
+              key={`v${deg}`}
+              d="M50 40V18"
+              transform={`rotate(${deg} 50 50)`}
+              stroke={stroke}
+              strokeWidth="1"
+              strokeDasharray="2 3"
+              opacity="0.5"
+            />
+          ))}
+          <circle cx="50" cy="50" r="10" fill={stroke} opacity="0.8" />
+          <circle
+            cx="50"
+            cy="50"
+            r="6"
+            fill="none"
+            stroke={fill}
+            strokeWidth="1"
+            strokeDasharray="1.5 2"
+          />
+        </g>
+      );
     case "charms":
       return (
         <g>

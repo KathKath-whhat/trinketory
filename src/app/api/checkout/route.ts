@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { resolveCartLines } from "@/lib/catalog";
 import { getStripe, siteUrl } from "@/lib/stripe";
+import { variantLabel } from "@/lib/format";
 
 export const runtime = "nodejs";
 
@@ -84,7 +85,7 @@ export async function POST(request: Request) {
         unit_amount: l.priceCents,
         product_data: {
           name: l.title,
-          description: l.colour.name,
+          description: variantLabel(l.colour.name, l.size),
         },
       },
     })),

@@ -12,6 +12,8 @@ type Category = { id: string; name: string };
 export type VariantDraft = {
   id: string;
   colourId: string;
+  /* Optional, e.g. "Small". Blank for products that only come in colours. */
+  size: string;
   /* Held as a string so a half-typed "12." doesn't fight the input. */
   price: string;
   stock: number;
@@ -114,16 +116,23 @@ export default function ProductEditor({
 
   function addVariant() {
     const used = new Set(draft.variants.map((v) => v.colourId));
-    const next = colours.find((c) => !used.has(c.id));
+    /* An unused colour if there is one; otherwise repeat the last row's
+       colour, which is how a second size of the same colour gets added. */
+    const last = draft.variants[draft.variants.length - 1];
+    const next =
+      colours.find((c) => !used.has(c.id)) ??
+      colours.find((c) => c.id === last?.colourId) ??
+      colours[0];
     if (!next) return;
 
     const handle = draft.handle || slugify(draft.title);
     set("variants", [
       ...draft.variants,
       {
-        id: `${handle}--${next.id}`,
+        id: `${handle}--${next.id}--${Date.now().toString(36)}`,
         colourId: next.id,
-        price: "",
+        size: last?.size ?? "",
+        price: last?.price ?? "",
         stock: 0,
         isNew: true,
       },
@@ -166,6 +175,21 @@ export default function ProductEditor({
       setError("A product needs at least one colourway.");
       setSaving(false);
       return;
+    }
+
+    /* Two rows with the same colour and size would collide in the database. */
+    const combos = new Set<string>();
+    for (const v of draft.variants) {
+      const key = `${v.colourId}|${v.size.trim().toLowerCase()}`;
+      if (combos.has(key)) {
+        const name = colours.find((c) => c.id === v.colourId)?.name ?? v.colourId;
+        setError(
+          `${name}${v.size.trim() ? ` / ${v.size.trim()}` : ""} is listed twice.`,
+        );
+        setSaving(false);
+        return;
+      }
+      combos.add(key);
     }
 
     /* Validate every price before writing anything, so a typo in the last
@@ -220,6 +244,7 @@ export default function ProductEditor({
         id: v.id,
         product_id: id,
         colour_id: v.colourId,
+        size: v.size.trim(),
         price_cents: cents,
         stock: v.stock,
         position: i + 1,
@@ -310,10 +335,10 @@ export default function ProductEditor({
               <button
                 type="button"
                 onClick={addVariant}
-                disabled={draft.variants.length >= colours.length}
+                disabled={colours.length === 0}
                 className="label text-accent hover:underline disabled:text-ink-faint disabled:no-underline"
               >
-                Add colourway
+                Add option
               </button>
             </div>
 
@@ -347,6 +372,16 @@ export default function ProductEditor({
                             </option>
                           ))}
                         </select>
+                      </label>
+
+                      <label className="w-28">
+                        <span className="label block text-ink-faint">Size</span>
+                        <input
+                          placeholder="Optional"
+                          value={v.size}
+                          onChange={(e) => updateVariant(i, { size: e.target.value })}
+                          className={input}
+                        />
                       </label>
 
                       <label className="w-28">
@@ -388,7 +423,9 @@ export default function ProductEditor({
               </ul>
             )}
             <p className="mt-3 text-caption text-ink-faint">
-              Stock at zero marks a colourway sold out automatically.
+              Stock at zero marks an option sold out automatically. Size is
+              optional — fill it in (e.g. Small, Medium, Large) to add one row
+              per colour and size, each with its own price and stock.
             </p>
           </div>
         </div>
@@ -419,6 +456,7 @@ export default function ProductEditor({
               <option value="new">New</option>
               <option value="best-seller">Best seller</option>
               <option value="last-one">Last one</option>
+              <option value="coming-soon">Coming soon (not for sale yet)</option>
             </select>
           </Field>
 
@@ -472,7 +510,7 @@ export default function ProductEditor({
 
           {draft.variants.length > 0 && (
             <p className="text-caption text-ink-faint">
-              {draft.variants.length} colourway
+              {draft.variants.length} option
               {draft.variants.length === 1 ? "" : "s"} ·{" "}
               {draft.variants.reduce((s, v) => s + v.stock, 0)} units
               {(() => {

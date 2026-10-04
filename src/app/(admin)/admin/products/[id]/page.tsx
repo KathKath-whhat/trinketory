@@ -24,7 +24,7 @@ export default function EditProduct() {
     getBrowserClient()
       .from("products")
       .select(
-        "id, handle, title, category_id, description, details, aspect, featured, badge, drop_number, image_paths, variants(id, colour_id, price_cents, stock, position)",
+        "id, handle, title, category_id, description, details, aspect, featured, badge, drop_number, image_paths, variants(id, colour_id, size, price_cents, stock, position)",
       )
       .eq("id", id)
       .maybeSingle()
@@ -36,6 +36,7 @@ export default function EditProduct() {
         type V = {
           id: string;
           colour_id: string;
+          size: string | null;
           price_cents: number;
           stock: number;
           position: number;
@@ -72,6 +73,7 @@ export default function EditProduct() {
             .map((v) => ({
               id: v.id,
               colourId: v.colour_id,
+              size: v.size ?? "",
               /* Cents back to a plain decimal string for the input. */
               price: (v.price_cents / 100).toFixed(
                 v.price_cents % 100 === 0 ? 0 : 2,
