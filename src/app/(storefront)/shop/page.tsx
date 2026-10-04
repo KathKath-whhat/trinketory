@@ -5,6 +5,8 @@ import {
   getAvailableColours,
   getCategories,
   getCategory,
+  getDepartment,
+  getDepartments,
   getProducts,
   type SortKey,
 } from "@/lib/catalog";
@@ -16,6 +18,7 @@ export const revalidate = 300;
 
 type SearchParams = Promise<{
   category?: string;
+  department?: string;
   colour?: string;
   sort?: string;
 }>;
@@ -28,19 +31,30 @@ export default async function ShopPage({
   const sp = await searchParams;
 
   const category = sp.category;
+  /* A category is more specific, so it wins if both are present. */
+  const department = category ? undefined : sp.department;
   const colours = sp.colour?.split(",").filter(Boolean) ?? [];
   const sort = sp.sort as SortKey | undefined;
 
-  const [products, availableColours, categories, activeCategory] =
-    await Promise.all([
-      getProducts({ category, colours, sort }),
-      getAvailableColours(),
-      getCategories(),
-      category ? getCategory(category) : Promise.resolve(null),
-    ]);
+  const [
+    products,
+    availableColours,
+    categories,
+    departments,
+    activeCategory,
+    activeDepartment,
+  ] = await Promise.all([
+    getProducts({ category, department, colours, sort }),
+    getAvailableColours(),
+    getCategories(),
+    getDepartments(),
+    category ? getCategory(category) : Promise.resolve(null),
+    department ? getDepartment(department) : Promise.resolve(null),
+  ]);
 
-  const heading = activeCategory?.name ?? "Everything";
-  const blurb = activeCategory?.blurb ?? "The whole drawer.";
+  const active = activeCategory ?? activeDepartment;
+  const heading = active?.name ?? "Everything";
+  const blurb = active?.blurb ?? "The whole drawer.";
 
   return (
     <div className="mx-auto max-w-[1600px] px-5 py-12 md:px-10 md:py-16">
@@ -59,6 +73,7 @@ export default async function ShopPage({
           <Suspense fallback={<div className="label text-ink-faint">Loading filters…</div>}>
             <FilterRail
               categories={categories}
+              departments={departments}
               colours={availableColours}
               resultCount={products.length}
             />

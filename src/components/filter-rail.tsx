@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
-import type { Category, Colour, SortKey } from "@/lib/catalog";
+import type { Category, Colour, Department, SortKey } from "@/lib/catalog";
 
 const SORTS: { value: SortKey; label: string }[] = [
   { value: "featured", label: "Featured" },
@@ -19,10 +19,12 @@ const SORTS: { value: SortKey; label: string }[] = [
 */
 export default function FilterRail({
   categories,
+  departments = [],
   colours,
   resultCount,
 }: {
   categories: Category[];
+  departments?: Department[];
   colours: Colour[];
   resultCount: number;
 }) {
@@ -41,6 +43,7 @@ export default function FilterRail({
     [colourParam],
   );
   const selectedCategory = params.get("category");
+  const selectedDepartment = selectedCategory ? null : params.get("department");
   const sort = (params.get("sort") as SortKey | null) ?? "featured";
 
   const push = useCallback(
@@ -61,6 +64,18 @@ export default function FilterRail({
     [params, push],
   );
 
+  /* Department and category are one choice: picking either clears the other. */
+  const pickScope = useCallback(
+    (kind: "department" | "category" | null, id: string | null) => {
+      const next = new URLSearchParams(params.toString());
+      next.delete("department");
+      next.delete("category");
+      if (kind && id) next.set(kind, id);
+      push(next);
+    },
+    [params, push],
+  );
+
   const toggleColour = useCallback(
     (id: string) => {
       const next = selectedColours.includes(id)
@@ -71,7 +86,8 @@ export default function FilterRail({
     [selectedColours, setParam],
   );
 
-  const hasFilters = selectedColours.length > 0 || !!selectedCategory;
+  const scoped = !!selectedCategory || !!selectedDepartment;
+  const hasFilters = selectedColours.length > 0 || scoped;
 
   return (
     <div className="lg:sticky lg:top-40">
@@ -87,7 +103,7 @@ export default function FilterRail({
           {hasFilters && !open ? (
             <span className="text-accent">
               {" "}
-              {selectedColours.length + (selectedCategory ? 1 : 0)}
+              {selectedColours.length + (scoped ? 1 : 0)}
             </span>
           ) : null}
         </button>
@@ -103,9 +119,9 @@ export default function FilterRail({
             <li>
               <button
                 type="button"
-                onClick={() => setParam("category", null)}
+                onClick={() => pickScope(null, null)}
                 className={`text-caption transition-colors hover:text-ink ${
-                  selectedCategory
+                  scoped
                     ? "text-ink-muted"
                     : "text-ink underline underline-offset-4"
                 }`}
@@ -113,21 +129,58 @@ export default function FilterRail({
                 Everything
               </button>
             </li>
-            {categories.map((cat) => (
-              <li key={cat.id}>
-                <button
-                  type="button"
-                  onClick={() => setParam("category", cat.id)}
-                  className={`text-caption transition-colors hover:text-ink ${
-                    selectedCategory === cat.id
-                      ? "text-ink underline underline-offset-4"
-                      : "text-ink-muted"
-                  }`}
-                >
-                  {cat.name}
-                </button>
-              </li>
-            ))}
+            {/*
+              With one department there is nothing to group, so the list stays
+              flat. With several, each gets a heading with its categories under it.
+            */}
+            {departments.length > 1
+              ? departments.map((dept) => (
+                  <li key={dept.id} className="pt-3">
+                    <button
+                      type="button"
+                      onClick={() => pickScope("department", dept.id)}
+                      className={`label transition-colors hover:text-ink ${
+                        selectedDepartment === dept.id
+                          ? "text-ink underline underline-offset-4"
+                          : "text-ink-faint"
+                      }`}
+                    >
+                      {dept.name}
+                    </button>
+                    <ul className="mt-2 space-y-2 border-l border-line pl-3">
+                      {dept.categories.map((cat) => (
+                        <li key={cat.id}>
+                          <button
+                            type="button"
+                            onClick={() => pickScope("category", cat.id)}
+                            className={`text-caption transition-colors hover:text-ink ${
+                              selectedCategory === cat.id
+                                ? "text-ink underline underline-offset-4"
+                                : "text-ink-muted"
+                            }`}
+                          >
+                            {cat.name}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                ))
+              : categories.map((cat) => (
+                  <li key={cat.id}>
+                    <button
+                      type="button"
+                      onClick={() => pickScope("category", cat.id)}
+                      className={`text-caption transition-colors hover:text-ink ${
+                        selectedCategory === cat.id
+                          ? "text-ink underline underline-offset-4"
+                          : "text-ink-muted"
+                      }`}
+                    >
+                      {cat.name}
+                    </button>
+                  </li>
+                ))}
           </ul>
         </div>
 

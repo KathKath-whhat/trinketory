@@ -22,6 +22,16 @@ export type Category = {
   id: string;
   name: string;
   blurb: string;
+  /* The broad world a category belongs to: hair, handmade, … */
+  departmentId: string;
+};
+
+export type Department = {
+  id: string;
+  name: string;
+  blurb: string;
+  /* Categories in this department, in nav order. */
+  categories: Category[];
 };
 
 export type Badge = "new" | "best-seller" | "last-one" | "coming-soon";
@@ -162,6 +172,8 @@ export type SortKey = "featured" | "newest" | "price-asc" | "price-desc";
 
 export type ProductQuery = {
   category?: string;
+  /* Any category inside this department. */
+  department?: string;
   colours?: string[];
   sort?: SortKey;
   oneOfOneOnly?: boolean;
@@ -178,9 +190,24 @@ async function fetchProducts(): Promise<Product[]> {
 }
 
 export async function getProducts(query: ProductQuery = {}): Promise<Product[]> {
-  const { category, colours: colourIds, sort = "featured", oneOfOneOnly } = query;
+  const {
+    category,
+    department,
+    colours: colourIds,
+    sort = "featured",
+    oneOfOneOnly,
+  } = query;
 
   let results = await fetchProducts();
+
+  if (department) {
+    const inDept = new Set(
+      (await getCategories())
+        .filter((c) => c.departmentId === department)
+        .map((c) => c.id),
+    );
+    results = results.filter((p) => inDept.has(p.categoryId));
+  }
 
   if (oneOfOneOnly) {
     results = results.filter((p) => p.dropNumber !== undefined);
@@ -252,25 +279,70 @@ export async function getDrops(): Promise<Product[]> {
     .sort((a, b) => (b.dropNumber ?? 0) - (a.dropNumber ?? 0));
 }
 
+type CategoryRow = {
+  id: string;
+  name: string;
+  blurb: string;
+  department_id: string | null;
+};
+
+function toCategory(row: CategoryRow): Category {
+  return {
+    id: row.id,
+    name: row.name,
+    blurb: row.blurb,
+    departmentId: row.department_id ?? "hair",
+  };
+}
+
 export async function getCategories(): Promise<Category[]> {
   const { data, error } = await supabase
     .from("categories")
-    .select("id, name, blurb")
-    .order("position");
+    .select("id, name, blurb, department_id")
+    .order("position")
+    .returns<CategoryRow[]>();
 
   if (error) throw new Error(`Failed to load categories: ${error.message}`);
-  return data ?? [];
+  return (data ?? []).map(toCategory);
 }
 
 export async function getCategory(id: string): Promise<Category | null> {
   const { data, error } = await supabase
     .from("categories")
-    .select("id, name, blurb")
+    .select("id, name, blurb, department_id")
     .eq("id", id)
-    .maybeSingle<Category>();
+    .maybeSingle<CategoryRow>();
 
   if (error) throw new Error(`Failed to load category ${id}: ${error.message}`);
-  return data;
+  return data ? toCategory(data) : null;
+}
+
+/*
+  Departments with their categories attached. Empty departments are dropped,
+  so a department can be set up in Supabase before anything is in it.
+*/
+export async function getDepartments(): Promise<Department[]> {
+  const [{ data, error }, categories] = await Promise.all([
+    supabase
+      .from("departments")
+      .select("id, name, blurb")
+      .order("position")
+      .returns<{ id: string; name: string; blurb: string }[]>(),
+    getCategories(),
+  ]);
+
+  if (error) throw new Error(`Failed to load departments: ${error.message}`);
+
+  return (data ?? [])
+    .map((d) => ({
+      ...d,
+      categories: categories.filter((c) => c.departmentId === d.id),
+    }))
+    .filter((d) => d.categories.length > 0);
+}
+
+export async function getDepartment(id: string): Promise<Department | null> {
+  return (await getDepartments()).find((d) => d.id === id) ?? null;
 }
 
 /* ── Bag lines ────────────────────────────────────────────────────────── */

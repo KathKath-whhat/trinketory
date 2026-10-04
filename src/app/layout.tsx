@@ -30,13 +30,13 @@ export const metadata: Metadata = {
     template: "%s · Trinketory",
   },
   description:
-    "Claw clips, bows, scrunchies, hair pins and combs. Made in short runs and packed by hand in Sydney.",
+    "Hair pieces, handmade crochet and other small, good things. Made in short runs and packed by hand in Sydney.",
   openGraph: {
     type: "website",
     siteName: "Trinketory",
     title: "Trinketory — small things, taken seriously",
     description:
-      "Claw clips, bows, scrunchies, hair pins and combs. Made in short runs and packed by hand in Sydney.",
+      "Hair pieces, handmade crochet and other small, good things. Made in short runs and packed by hand in Sydney.",
   },
 };
 
